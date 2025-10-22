@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""
+Simple Snowflake WIF Test Script for Azure
+Tests Workload Identity Federation (WIF) connection from Azure VM to Snowflake
+"""
+import os
+import sys
+import snowflake.connector
+from azure.identity import ManagedIdentityCredential
+
+def get_azure_token(tenant_id, client_id):
+    """
+    Obtain an Azure AD access token using the VM's managed identity.
+    
+    Args:
+        tenant_id: Azure AD tenant ID
+        client_id: Client ID of the managed identity
+    
+    Returns:
+        Access token string
+    """
+    try:
+        print(f"Obtaining Azure AD token for tenant: {tenant_id}")
+        print(f"Using managed identity client ID: {client_id}")
+        
+        # Create a credential object for the managed identity
+        credential = ManagedIdentityCredential(client_id=client_id)
+        
+        # Snowflake's Azure AD scope
+        # The scope format is: https://<snowflake-account>.snowflakecomputing.com
+        # But for WIF, we use the generic Snowflake session scope
+        scope = "https://snowflakecomputing.com/session:scope"
+        
+        # Get the token
+        token = credential.get_token(scope)
+        print("✅ Successfully obtained Azure AD token")
+        return token.token
+        
+    except Exception as e:
+        print(f"❌ Failed to obtain Azure AD token: {str(e)}")
+        raise
+
+def main():
+    print("=" * 60)
+    print("Snowflake WIF Connection Test (Azure)")
+    print("=" * 60)
+    print(f"Snowflake Connector Version: {snowflake.connector.__version__}")
+    
+    # Azure configuration
+    azure_tenant_id = "${azure_tenant_id}"
+    azure_client_id = "${azure_client_id}"
+    
+    try:
+        # Step 1: Get Azure AD token using managed identity
+        print("\n[Step 1] Obtaining Azure AD token using managed identity...")
+        azure_token = get_azure_token(azure_tenant_id, azure_client_id)
+        
+        # Step 2: Connect to Snowflake using WIF
+        print("\n[Step 2] Connecting to Snowflake using WIF...")
+        print(f"Account: ${snowflake_organization_name}-${snowflake_account_name}")
+        
+        conn = snowflake.connector.connect(
+            account='${snowflake_organization_name}-${snowflake_account_name}',
+            authenticator='oauth',  # Use OAuth authenticator with the Azure token
+            token=azure_token,      # Provide the Azure AD token
+        )
+        
+        print("✅ WIF Connection established successfully!")
+        
+        # Create a cursor
+        cur = conn.cursor()
+        
+        # Step 3: Set context (warehouse, database, schema)
+        print("\n[Step 3] Setting Snowflake context...")
+        ${context_setup}
+        
+        # Step 4: Execute test queries
+        print("\n[Step 4] Executing test queries...")
+        
+        # Basic timestamp query
+        cur.execute("SELECT current_timestamp()")
+        result = cur.fetchone()
+        print(f"  Current timestamp: {result[0]}")
+        
+        # Identity verification query
+        cur.execute("SELECT current_user(), current_account(), current_role(), current_warehouse(), current_database(), current_schema()")
+        identity = cur.fetchone()
+        
+        print(f"\n{'='*60}")
+        print("🎉 WIF Connection Successful!")
+        print(f"{'='*60}")
+        print(f"  User: {identity[0]}")
+        print(f"  Account: {identity[1]}")  
+        print(f"  Role: {identity[2]}")
+        print(f"  Warehouse: {identity[3]}")
+        print(f"  Database: {identity[4]}")
+        print(f"  Schema: {identity[5]}")
+        print(f"{'='*60}")
+        
+        # Test query on actual data (if available)
+        ${schema_test_query}
+        
+        cur.close()
+        conn.close()
+        print("\n✅ WIF test completed successfully! Connection and permissions verified.")
+        
+    except Exception as e:
+        print(f"\n❌ WIF Connection Failed: {str(e)}")
+        print("\nTroubleshooting tips:")
+        print("1. Verify Azure managed identity is properly assigned to the VM")
+        print("2. Check that Snowflake WIF user exists and is mapped to correct Azure Application ID")
+        print("3. Ensure Azure AD tenant ID matches the configuration")
+        print("4. Verify network connectivity to Snowflake endpoints")
+        print("5. Check that the managed identity has necessary Azure AD permissions")
+        print("\nAzure Configuration:")
+        print(f"  Tenant ID: {azure_tenant_id}")
+        print(f"  Client ID: {azure_client_id}")
+        return 1
+    
+    return 0
+
+if __name__ == "__main__":
+    exit(main())
+
