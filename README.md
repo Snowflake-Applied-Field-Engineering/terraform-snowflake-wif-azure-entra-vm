@@ -6,7 +6,7 @@ A Terraform module to deploy a test **Azure Virtual Machine (VM)** for testing *
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Architecture Summary](#architecture-summary)
 - [Prerequisites](#prerequisites)
@@ -19,7 +19,7 @@ A Terraform module to deploy a test **Azure Virtual Machine (VM)** for testing *
 
 ---
 
-## 🏗️ Architecture Summary
+## Architecture Summary
 
 This module creates the following resources:
 
@@ -39,7 +39,7 @@ This module creates the following resources:
 
 ---
 
-## ✅ Prerequisites
+##  Prerequisites
 
 ### Required Tools
 
@@ -445,7 +445,7 @@ az resource list --resource-group rg-snowflake-wif-test
 
 ---
 
-## 📚 Additional Resources
+##  Additional Resources
 
 - [Snowflake Workload Identity Federation Documentation](https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-wif)
 - [Azure Managed Identities Documentation](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/)
@@ -454,19 +454,19 @@ az resource list --resource-group rg-snowflake-wif-test
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-## 📝 License
+## License
 
 This project is provided as-is for testing and demonstration purposes.
 
 ---
 
-## 📧 Support
+## Support
 
 For issues or questions:
 - Open an issue on [GitHub](https://github.com/Snowflake-Applied-Field-Engineering/snowflake-wif-azure-sp/issues)
