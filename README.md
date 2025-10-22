@@ -277,7 +277,7 @@ os_image = {
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Manual Testing Steps
 
