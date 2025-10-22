@@ -14,6 +14,10 @@ terraform {
       source  = "Snowflake-Labs/snowflake"
       version = "~> 1.0"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 }
 
@@ -25,7 +29,6 @@ provider "azurerm" {
     }
     virtual_machine {
       delete_os_disk_on_deletion     = true
-      graceful_shutdown              = false
       skip_shutdown_and_force_delete = false
     }
   }
@@ -48,7 +51,7 @@ provider "snowflake" {
   user              = var.snowflake_username
   role              = var.snowflake_role
   authenticator     = "SNOWFLAKE_JWT" # Requires private_key and corresponding public key setup
-  private_key_path  = var.snowflake_private_key_path
+  private_key       = file(var.snowflake_private_key_path)
 
   # Optional: Enable preview features if needed
   # preview_features_enabled = []

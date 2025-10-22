@@ -98,7 +98,7 @@ output "wif_test_user" {
 
 output "test_instructions" {
   description = "Instructions for testing the WIF connection"
-  value = <<-EOT
+  value       = <<-EOT
     
     === Snowflake WIF Test Instructions ===
     
